@@ -6,7 +6,7 @@
       <?php flashMessage('register_success') ?>
       <h2>Login</h2>
       <p>Please fill out this form to login</p>
-      <form action="<?php echo URL_ROOT; ?>/users/login" method="post">
+      <form action="<?php echo URL_ROOT; ?>/users/login" method="POST">
 
         <div class="form-group">
           <label for="email">Email:</label>

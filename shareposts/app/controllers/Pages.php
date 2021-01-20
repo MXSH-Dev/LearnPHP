@@ -1,26 +1,33 @@
 <?php
 
-class Pages extends Controller {
-    public function __construct(){
+class Pages extends Controller
+{
+    public function __construct()
+    {
         // echo "Pages loaded \n";
         // $this->postModel = $this->model('Post');
 
     }
-    
-    public function index(){
+
+    public function index()
+    {
         // $posts = $this->postModel->getPosts();
+        if (isUserLoggedIn()) {
+            redirect('posts');
+        }
         $data = [
-            'title'=>'welcome to shareposts',
+            'title' => 'welcome to shareposts',
             'description' => 'Simple social network built on the Core MVC Framework'
         ];
-        $this->view('pages/index',$data);
+        $this->view('pages/index', $data);
     }
 
-    public function about(){
+    public function about()
+    {
         $data = [
-            'title'=>'About',
+            'title' => 'About',
             'description' => 'App to share posts with other users'
         ];
-        $this->view('pages/about',$data);
+        $this->view('pages/about', $data);
     }
 }
