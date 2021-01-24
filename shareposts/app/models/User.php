@@ -23,6 +23,20 @@ class User
         }
     }
 
+    public function getUserById($id)
+    {
+        $this->db->query("SELECT * FROM users WHERE id=:id");
+        $this->db->bind(':id', $id);
+
+        $row = $this->db->fetchSingleResult();
+
+        if ($this->db->rowCount() > 0) {
+            return $row;
+        } else {
+            return false;
+        }
+    }
+
     public function register($userData)
     {
         $this->db->query('INSERT INTO users (name,email,password) VALUES (:name,:email,:password)');

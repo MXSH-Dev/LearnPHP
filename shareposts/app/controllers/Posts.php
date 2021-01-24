@@ -9,6 +9,7 @@ class Posts extends Controller
     }
 
     $this->postModel = $this->model('Post');
+    $this->userModel = $this->model('User');
   }
 
   public function index()
@@ -44,7 +45,8 @@ class Posts extends Controller
       if ($validPost) {
         if ($this->postModel->addPost($data)) {
           flashMessage('post_message', 'Post Added');
-          $this->index();
+          // print_r($_SESSION);
+          redirect('posts');
         } else {
           flashMessage('post_message', 'Failed to add post, something went wrong', "alert alert-danger");
           $this->view('posts/add', $data);
@@ -52,17 +54,94 @@ class Posts extends Controller
       } else {
         $this->view('posts/add', $data);
       }
+    } else {
+      $data = [
+        'title' => '',
+        'body' => '',
+        'user_id' => $_SESSION['user_id'],
+        'title_err' => '',
+        'body_err' => '',
+      ];
+
+      $this->view('posts/add', $data);
     }
+  }
 
+  public function edit($id)
+  {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+      // sanitize POST array
+
+      $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+      $data = [
+        'id' => $id,
+        'title' => trim($_POST['title']),
+        'body' => trim($_POST['body']),
+        'user_id' => $_SESSION['user_id'],
+        'title_err' => '',
+        'body_err' => '',
+      ];
+      $validPost = false;
+
+      [$validPost, $data] = $this->validatePostData($data);
+      if ($validPost) {
+        if ($this->postModel->updatePost($data)) {
+          flashMessage('post_message', 'Post Edited');
+          // print_r($_SESSION);
+          redirect('posts');
+        } else {
+          flashMessage('post_message', 'Failed to add post, something went wrong', "alert alert-danger");
+          $this->view('posts/edit', $data);
+        }
+      } else {
+        $this->view('posts/edit', $data);
+      }
+    } else {
+      // get existing post from model
+      $post = $this->postModel->getPostById($id);
+
+      // check for the owner
+      if ($post->user_id != $_SESSION['user_id']) {
+        redirect('posts');
+      }
+      $data = [
+        'id' => $id,
+        'title' => $post->title,
+        'body' => $post->body,
+      ];
+
+      $this->view('posts/edit', $data);
+    }
+  }
+
+  public function show($id)
+  {
+    $post = $this->postModel->getPostById($id);
+    $user = $this->userModel->getUserById($post->user_id);
     $data = [
-      'title' => '',
-      'body' => '',
-      'user_id' => $_SESSION['user_id'],
-      'title_err' => '',
-      'body_err' => '',
+      'post' => $post,
+      'user' => $user
     ];
+    $this->view('posts/show', $data);
+  }
 
-    $this->view('posts/add', $data);
+  public function delete($id)
+  {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $post = $this->postModel->getPostById($id);
+      if ($post->user_id != $_SESSION['user_id']) {
+        redirect('posts');
+      }
+      if ($this->postModel->deletePost($id)) {
+        flashMessage('post_message', 'Post Deleted');
+        redirect('posts');
+      } else {
+        flashMessage('post_message', 'Error occurred trying to delete', '"alert alert-danger"');
+        redirect('posts');
+      }
+    }
   }
 
   private function validatePostData($postData)

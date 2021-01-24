@@ -1,6 +1,10 @@
 <?php require APP_ROOT . '/views/includes/header.php'; ?>
 
-<?php flashMessage('post_message'); ?>
+<?php
+flashMessage('post_message');
+// print_r($_SESSION);
+?>
+
 <div class="row mb-3">
   <div class="col-md-6">
     <h1>Posts</h1>
